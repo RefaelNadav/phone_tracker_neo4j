@@ -56,3 +56,15 @@ def get_is_connected(device_id1, device_id2):
         print(f'Error in GET /api/analysis/count_connected: {str(e)}')
         logging.error(f'Error in GET /api/analysis/count_connected: {str(e)}')
         return jsonify({'error': 'internal server error'}), 500
+
+@analysis_bp.route("/api/analysis/last_interaction/<device_id>", methods=['GET'])
+def get_last_interaction(device_id):
+    try:
+        repo = AnalysisRepository(current_app.neo4j_driver)
+        interaction = repo.find_last_interaction(device_id)
+
+        return jsonify(interaction), 200
+    except Exception as e:
+        print(f'Error in GET /api/analysis/count_connected: {str(e)}')
+        logging.error(f'Error in GET /api/analysis/count_connected: {str(e)}')
+        return jsonify({'error': 'internal server error'}), 500
