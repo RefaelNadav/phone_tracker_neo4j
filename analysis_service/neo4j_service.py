@@ -42,3 +42,17 @@ class AnalysisRepository:
                      for record in result]
             print(calls)
             return calls
+
+    def count_connected_devices(self, device_id):
+        with self.driver.session() as session:
+            query = """
+                MATCH (d1:Device{device_id: $device_id })-[r:CONNECTED] -  (d2:Device)
+                RETURN COUNT(d2) as count_devices
+            """
+
+            result = session.run(query, device_id=device_id).single()
+            if result is None:
+                return 0
+            print(result['count_devices'])
+            return result['count_devices']
+
