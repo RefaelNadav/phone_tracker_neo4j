@@ -22,24 +22,23 @@ class AnalysisRepository:
                 return None
             return result['cycle_length']
 
-            # patterns = []
-            # for record in result:
-            #     """
-            #     לבחון את התוצאות, לראות אם זה נגיש להבין מי העביר מה וכמה
-            #     אם לא - לנסות למצוא פיתרון איך לעצב את מה שחוזר כדי שיהיה לאנליסט נוח
-            #     """
-            #     pattern = {
-            #
-            #         'accounts': [node['id'] for node in record['accounts']],
-            #         'transactions': [
-            #             {
-            #                 'amount': tx['amount'],
-            #                 'currency': tx['currency'],
-            #                 'timestamp': f"{tx['timestamp']}"
-            #             } for tx in record['transactions']
-            #         ],
-            #         'cycle_length': record['cycle_length']
-            #     }
-            #     patterns.append(pattern)
-            #
-            # return patterns
+    def find_signal_strength(self):
+        with self.driver.session() as session:
+            query = """
+                MATCH (d1:Device)-[r:CONNECTED] - > (d2:Device)
+                WHERE r.signal_strength_dbm > -60
+                RETURN d1.name as from_name, 
+                d2.name as to_name, 
+                r.signal_strength_dbm as signal_strength
+            """
+
+            result = session.run(query)
+            if result is None:
+                return None
+
+            calls = [{"from": record['from_name'],
+                      "to": record["to_name"],
+                      "strength": record['signal_strength']}
+                     for record in result]
+            print(calls)
+            return calls
