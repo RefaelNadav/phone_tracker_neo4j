@@ -34,12 +34,24 @@ def get_strength_dbm():
 
 @analysis_bp.route("/api/analysis/count_connected/<device_id>", methods=['GET'])
 def get_count_connected_devices(device_id):
-    # return jsonify(device_id), 200
     try:
         repo = AnalysisRepository(current_app.neo4j_driver)
         count_connected = repo.count_connected_devices(device_id)
 
         return jsonify({"connected devices": count_connected}), 200
+    except Exception as e:
+        print(f'Error in GET /api/analysis/count_connected: {str(e)}')
+        logging.error(f'Error in GET /api/analysis/count_connected: {str(e)}')
+        return jsonify({'error': 'internal server error'}), 500
+
+
+@analysis_bp.route("/api/analysis/is_connected/<device_id1>/<device_id2>", methods=['GET'])
+def get_is_connected(device_id1, device_id2):
+    try:
+        repo = AnalysisRepository(current_app.neo4j_driver)
+        count_connected = repo.chekc_is_connected(device_id1, device_id2)
+
+        return jsonify(count_connected), 200
     except Exception as e:
         print(f'Error in GET /api/analysis/count_connected: {str(e)}')
         logging.error(f'Error in GET /api/analysis/count_connected: {str(e)}')

@@ -53,6 +53,17 @@ class AnalysisRepository:
             result = session.run(query, device_id=device_id).single()
             if result is None:
                 return 0
-            print(result['count_devices'])
             return result['count_devices']
+
+    def chekc_is_connected(self, device_id1, device_id2):
+        with self.driver.session() as session:
+            query = """
+                MATCH (d1:Device{device_id: $device_id1})-[r:CONNECTED] -  
+                (d2:Device{device_id: $device_id2})
+                RETURN d1
+            """
+
+            result = session.run(query, device_id1=device_id1, device_id2=device_id2).single()
+            return result is not None
+
 
